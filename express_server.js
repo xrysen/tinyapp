@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
 const PORT = 8080;
 
 const urlDatabase = {
@@ -7,10 +8,28 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const generateRandomString = () => {
+  let output = "";
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  for (let i = 0; i < 6; i++) {
+    output += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return output;
+};
+
+console.log(generateRandomString());
+
+app.use(bodyParser.urlencoded({extended: true}));
+
 app.set('view engine', 'ejs');
 
 app.get("/", (req, res) => {
   res.send("Hello!");
+});
+
+app.post("/urls", (req, res) => {
+  console.log(req.body);
+  res.send("ok");
 });
 
 app.get("/urls/new", (req, res) => {
