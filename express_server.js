@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const PORT = 8080;
 const cookieParser = require('cookie-parser');
+const { generateRandomString, findEmail } = require("./helpers");
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -13,16 +14,9 @@ const users = {
 
 };
 
-const generateRandomString = () => {
-  let output = "";
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for (let i = 0; i < 6; i++) {
-    output += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return output;
-};
 
-app.use(bodyParser.urlencoded({extended: true}));
+
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.set('view engine', 'ejs');
@@ -44,27 +38,25 @@ app.get("/urls/new", (req, res) => {
     user_id: req.cookies['user_id']
   };
 
-  console.log(templateVars.user);
-
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { 
+  const templateVars = {
     urls: urlDatabase,
     user: users,
     user_id: req.cookies['user_id']
-   };
+  };
 
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { 
-    shortURL: req.params.shortURL, 
+  const templateVars = {
+    shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
     user_id: req.cookies['user_id'],
-    user: users 
+    user: users
   };
 
   res.render("urls_show", templateVars);
@@ -114,14 +106,23 @@ app.get("/register", (req, res) => {
 // Handle Registration
 app.post("/register", (req, res) => {
   console.log("creating user");
-  const randomId = generateRandomString();
-  users[randomId] = { };
-  users[randomId].email = req.body.email;
-  users[randomId].password = req.body.password;
-  res.cookie("user_id", randomId);
-  console.log(users);
-  res.redirect("/urls");
+  if (req.body.email === "" || req.body.password === "") {
+    console.log("Empty field");
+    res.sendStatus(400);
+  } else if (findEmail(users, req.body.email)) {
+    console.log("User exists");
+    res.sendStatus(400);
+  } else {
+    const randomId = generateRandomString();
+    users[randomId] = {};
+    users[randomId].email = req.body.email;
+    users[randomId].password = req.body.password;
+    res.cookie("user_id", randomId);
+    console.log(users);
+    res.redirect("/urls");
+  }
 });
+
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
