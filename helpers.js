@@ -32,7 +32,19 @@ const findEmail = (obj, email) => {
   return false;
 };
 
+const urlsForUser = (obj, id) => {
+  const keys = Object.keys(obj);
+  let outputArray = [];
+  for (let item of keys) {
+    if (obj[item].userID === id) {
+      outputArray.push(item);
+    }
+  }
+  return outputArray;
+}
+
 module.exports = {
   generateRandomString,
-  findEmail
+  findEmail,
+  urlsForUser
 };

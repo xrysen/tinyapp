@@ -3,7 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const PORT = 8080;
 const cookieParser = require('cookie-parser');
-const { generateRandomString, findEmail } = require("./helpers");
+const { generateRandomString, findEmail, urlsForUser } = require("./helpers");
 
 const urlDatabase = {
   "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "aj48lW" },
@@ -56,12 +56,18 @@ app.get("/urls/new", (req, res) => {
 // Show created Tiny URLS
 app.get("/urls", (req, res) => {
   const templateVars = {
-    urls: urlDatabase,
+    urlDB: urlDatabase,
+    urls: urlsForUser(urlDatabase, req.cookies['user_id']),
     user: users,
     user_id: req.cookies['user_id']
   };
 
-  res.render("urls_index", templateVars);
+  if (req.cookies['user_id']) {
+    res.render("urls_index", templateVars);
+  } else {
+    res.redirect("/login");
+  }
+
 });
 
 app.get("/urls/:shortURL", (req, res) => {
