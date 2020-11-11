@@ -9,7 +9,7 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <% if (!user_id) { %>
+        <% if (!user[user_id]) { %>
         <a class = "nav-item nav-link" href = "/register" style = "position: absolute; right: 200px">Register</a>
         <a class = "nav-item nav-link" href = "/login" style = "position: absolute; right: 100px">Login</a>
         <% } else { %>

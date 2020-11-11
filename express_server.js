@@ -82,9 +82,16 @@ app.post("/urls/:shortURL/update", (req, res) => {
 
 // Login 
 app.post("/login", (req, res) => {
+  const userLookup = findEmail(users, req.body.email);
   console.log("Logging in...");
-  res.cookie("username", req.body.username);
-  res.redirect("/urls");
+  if (!userLookup || req.body.password !== users[userLookup].password) {
+    console.log("User doesn't exist");
+    console.log("Or incorrect password");
+    res.sendStatus(403);
+  } else if(userLookup && req.body.password === users[userLookup].password) {
+    res.cookie("user_id", userLookup);
+    res.redirect("/urls");
+  }
 });
 
 // Login page
