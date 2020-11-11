@@ -89,16 +89,28 @@ app.get("/u/:shortURL", (req, res) => {
 
 // Delete URL from database
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  console.log("Deleting....");
-  res.redirect("/urls");
+  const shortURL = req.params.shortURL;
+  if(req.cookies['user_id'] === urlDatabase[shortURL].userID) {
+    delete urlDatabase[req.params.shortURL];
+    console.log("Deleting....");
+    res.redirect("/urls");
+  } else {
+    res.sendStatus(403);
+  }
 });
+
 
 // Update function
 app.post("/urls/:shortURL/update", (req, res) => {
-  urlDatabase[req.params.shortURL].longURL = req.body.longURL;
-  res.redirect("/urls");
+  const shortURL = req.params.shortURL;
+  if(req.cookies['user_id'] === urlDatabase[shortURL].userID) {
+    urlDatabase[req.params.shortURL].longURL = req.body.longURL;
+    res.redirect("/urls");
+  } else {
+    res.sendStatus(403);
+  }
 });
+
 
 // Login 
 app.post("/login", (req, res) => {
@@ -128,7 +140,7 @@ app.get("/login", (req, res) => {
 app.post("/logout", (req, res) => {
   console.log("Logging out...");
   res.clearCookie("user_id");
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 // Registration Page
