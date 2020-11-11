@@ -22,7 +22,7 @@ app.use(cookieParser());
 app.set('view engine', 'ejs');
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.redirect("/login");
 });
 
 // POST method for submitting a new url
@@ -47,6 +47,7 @@ app.get("/urls/new", (req, res) => {
 
 });
 
+// Show created Tiny URLS
 app.get("/urls", (req, res) => {
   const templateVars = {
     urls: urlDatabase,
@@ -144,15 +145,6 @@ app.post("/register", (req, res) => {
     console.log(users);
     res.redirect("/urls");
   }
-});
-
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
 app.listen(PORT, () => {
