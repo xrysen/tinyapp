@@ -32,13 +32,19 @@ app.post("/urls", (req, res) => {
   res.redirect("/urls");
 });
 
+// Create new url
 app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: users,
     user_id: req.cookies['user_id']
   };
 
-  res.render("urls_new", templateVars);
+  if(req.cookies['user_id']) {
+    res.render("urls_new", templateVars);
+  } else {
+    res.redirect("/login");
+  }
+
 });
 
 app.get("/urls", (req, res) => {
