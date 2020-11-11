@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const PORT = 8080;
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 const { generateRandomString, findEmail, urlsForUser } = require("./helpers");
 
 const urlDatabase = {
@@ -116,11 +117,11 @@ app.post("/urls/:shortURL/update", (req, res) => {
 app.post("/login", (req, res) => {
   const userLookup = findEmail(users, req.body.email);
   console.log("Logging in...");
-  if (!userLookup || req.body.password !== users[userLookup].password) {
+  if (!userLookup || !bcrypt.compareSync(req.body.password, users[userLookup].password)) {
     console.log("User doesn't exist");
     console.log("Or incorrect password");
     res.sendStatus(403);
-  } else if(userLookup && req.body.password === users[userLookup].password) {
+  } else if(userLookup && bcrypt.compareSync(req.body.password,users[userLookup].password)) {
     res.cookie("user_id", userLookup);
     res.redirect("/urls");
   }
@@ -165,7 +166,7 @@ app.post("/register", (req, res) => {
     const randomId = generateRandomString();
     users[randomId] = {};
     users[randomId].email = req.body.email;
-    users[randomId].password = req.body.password;
+    users[randomId].password = bcrypt.hashSync(req.body.password, 10);
     res.cookie("user_id", randomId);
     res.redirect("/urls");
   }
