@@ -87,6 +87,16 @@ app.post("/login", (req, res) => {
   res.redirect("/urls");
 });
 
+// Login page
+app.get("/login", (req, res) => {
+  const templateVars = {
+    user_id: req.cookies['user_id'],
+    user: users
+  };
+
+  res.render("login", templateVars);
+})
+
 // Logout
 app.post("/logout", (req, res) => {
   console.log("Logging out...");
