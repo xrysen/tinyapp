@@ -30,7 +30,7 @@ app.use(cookieSession({
 app.set('view engine', 'ejs');
 
 app.get("/", (req, res) => {
-  if (req.session.user_id) {
+  if (req.session.user_id && users[req.session.user_id]) {
     res.redirect("/urls");
   } else {
     res.status(401);
@@ -66,6 +66,7 @@ app.get("/error", (req, res) => {
     templateVars.errorString = "A user with that e-mail already exists.";
     break;
   }
+  errorCode = 0; // Reset Error code
   res.render("error", templateVars);
 });
 
@@ -96,7 +97,7 @@ app.get("/urls/new", (req, res) => {
     user_id: req.session.user_id,
   };
 
-  if (req.session.user_id) {
+  if (req.session.user_id && users[req.session.user_id]) {
     res.render("urls_new", templateVars);
   } else {
     res.status(401);
@@ -114,7 +115,7 @@ app.get("/urls", (req, res) => {
     user_id: req.session.user_id
   };
 
-  if (req.session.user_id) {
+  if (req.session.user_id && users[req.session.user_id]) {
     res.render("urls_index", templateVars);
   } else {
     errorCode = 401;
@@ -209,7 +210,7 @@ app.get("/login", (req, res) => {
     user: users
   };
 
-  if (req.session.user_id) {
+  if (req.session.user_id && users[req.session.user_id]) {
     res.redirect("/urls");
   } else {
     res.render("login", templateVars);
@@ -229,7 +230,7 @@ app.get("/register", (req, res) => {
     user_id: req.session.user_id,
     user: users
   };
-  if (req.session.user_id) {
+  if (req.session.user_id && users[req.session.user_id]) {
     res.redirect("/urls");
   } else {
     res.render("register", templateVars);
