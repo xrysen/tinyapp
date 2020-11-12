@@ -33,6 +33,15 @@ app.get("/", (req, res) => {
 });
 
 
+app.get("/forbidden", (req, res) => {
+  const templateVars = {
+    user: users,
+    user_id: req.session.user_id
+  };
+  res.render("not_loggedin", templateVars);
+});
+
+
 // POST method for submitting a new url
 app.post("/urls", (req, res) => {
   const shortendString = generateRandomString();
@@ -45,7 +54,6 @@ app.post("/urls", (req, res) => {
     numVisits: 0
   };
 
-  console.log(urlDatabase[shortendString]);
   res.redirect("/urls");
 });
 
@@ -56,7 +64,7 @@ app.get("/urls/new", (req, res) => {
     user_id: req.session.user_id,
   };
 
-  if(req.session.user_id) {
+  if (req.session.user_id) {
     res.render("urls_new", templateVars);
   } else {
     res.redirect("/login");
@@ -76,7 +84,7 @@ app.get("/urls", (req, res) => {
   if (req.session.user_id) {
     res.render("urls_index", templateVars);
   } else {
-    res.redirect("/login");
+    res.redirect("/forbidden");
   }
 
 });
@@ -102,7 +110,7 @@ app.get("/u/:shortURL", (req, res) => {
 // Delete URL from database
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
-  if(req.session.user_id === urlDatabase[shortURL].userID) {
+  if (req.session.user_id === urlDatabase[shortURL].userID) {
     delete urlDatabase[req.params.shortURL];
     console.log("Deleting....");
     res.redirect("/urls");
@@ -115,7 +123,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 // Update function
 app.post("/urls/:shortURL/update", (req, res) => {
   const shortURL = req.params.shortURL;
-  if(req.session.user_id === urlDatabase[shortURL].userID) {
+  if (req.session.user_id === urlDatabase[shortURL].userID) {
     urlDatabase[req.params.shortURL].longURL = req.body.longURL;
     res.redirect("/urls");
   } else {
@@ -132,8 +140,8 @@ app.post("/login", (req, res) => {
     console.log("User doesn't exist");
     console.log("Or incorrect password");
     res.sendStatus(403);
-  } else if(userLookup && bcrypt.compareSync(req.body.password,users[userLookup].password)) {
-    req.session.user_id =  userLookup;
+  } else if (userLookup && bcrypt.compareSync(req.body.password, users[userLookup].password)) {
+    req.session.user_id = userLookup;
     res.redirect("/urls");
   }
 });
