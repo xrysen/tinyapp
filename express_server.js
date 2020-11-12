@@ -16,8 +16,6 @@ const users = {
 
 };
 
-let errorCode = 0;
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
   name: 'session',
@@ -27,60 +25,14 @@ app.use(cookieSession({
 app.set('view engine', 'ejs');
 
 app.get("/", (req, res) => {
-  if(req.session.user_id) {
+  if (req.session.user_id) {
     res.redirect("/urls");
   } else {
+    res.status(401);
     res.redirect("/login");
   }
 });
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-app.get("/error", (req, res) => {
-  const templateVars = {
-    user: users,
-    user_id: req.session.user_id,
-    errorString: ""
-  };
-  console.log(res.statusCode);
- 
-  switch(req.statusCode) {
-    case 401: // Not Authorized
-      templateVars.errorString = "You are not Authorized to View this Page. Please Login or Register for a new account";
-      break;
-    case 404: // Doesn't exist
-      templateVars.errorString = "Short URL doesn't exist. Please try making one!";
-      break;
-    case 403: // Forbidden
-      templateVars.errorString = "Action not allowed";
-      break;
-
-    case 400: // Bad Request
-      templateVars.errorString = "User name or password was left blank. Please try again";
-      break;
-
-    default:
-      templateVars.errorString = "Short URL doesn't exist.";
-      break;
-  }
-
-  res.render("error", templateVars);
-});
-
-=======
-
-app.get("/forbidden", (req, res) => {
-  const templateVars = {
-    user: users,
-    user_id: req.session.user_id
-  };
-  res.render("not_loggedin", templateVars);
-});
-
-
->>>>>>> parent of a1136aa... Changed how permissions were handled. Added error catching for incorrect user logged in trying to edit specific URL and if the specific URL doesn't exist
-=======
->>>>>>> parent of bae08dc... Added a new way to handle errors that gives relevant error messages based on the status code
 // POST method for submitting a new url
 app.post("/urls", (req, res) => {
   const shortendString = generateRandomString();
@@ -93,25 +45,7 @@ app.post("/urls", (req, res) => {
     numVisits: 0
   };
 
-<<<<<<< HEAD
-    const shortendString = generateRandomString();
-    const userID = req.session.user_id;
-    const date = new Date();
-    urlDatabase[shortendString] = {
-      longURL: req.body.longURL,
-      userID: userID,
-      dateCreated: date.toDateString(),
-      numVisits: 0
-    };
-    
-    res.redirect(`/urls/${shortendString}`);
-  } else {
-    res.status(401).sendFile("/error");
-    
-  }
-=======
   res.redirect("/urls");
->>>>>>> parent of bae08dc... Added a new way to handle errors that gives relevant error messages based on the status code
 });
 
 // Create new url
@@ -124,17 +58,8 @@ app.get("/urls/new", (req, res) => {
   if (req.session.user_id) {
     res.render("urls_new", templateVars);
   } else {
-<<<<<<< HEAD
-<<<<<<< HEAD
-    res.statusCode = 401;
-    res.redirect("/error");
-=======
-    res.redirect("/login");
->>>>>>> parent of a1136aa... Changed how permissions were handled. Added error catching for incorrect user logged in trying to edit specific URL and if the specific URL doesn't exist
-=======
     res.status(401);
     res.redirect("/login");
->>>>>>> parent of bae08dc... Added a new way to handle errors that gives relevant error messages based on the status code
   }
 
 });
@@ -151,29 +76,14 @@ app.get("/urls", (req, res) => {
   if (req.session.user_id) {
     res.render("urls_index", templateVars);
   } else {
-<<<<<<< HEAD
     res.status(401);
-<<<<<<< HEAD
-    res.redirect("/error");
-=======
-    res.redirect("/forbidden");
->>>>>>> parent of a1136aa... Changed how permissions were handled. Added error catching for incorrect user logged in trying to edit specific URL and if the specific URL doesn't exist
-=======
     res.send("<h1 style = 'text-align: center'>You are not Authorized to View this Page</h1><br /><h3 style = 'text-align: center'> Please <a href = '/login'>Login</a> or <a href = '/register'>Register</a> for a new account");
->>>>>>> parent of bae08dc... Added a new way to handle errors that gives relevant error messages based on the status code
   }
 
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = {
-    shortURL: req.params.shortURL,
-    user_id: req.session.user_id,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    user: users
-  };
 
-<<<<<<< HEAD
   if (urlDatabase[req.params.shortURL]) {
 
     const templateVars = {
@@ -196,9 +106,6 @@ app.get("/urls/:shortURL", (req, res) => {
     res.send("<h1 style = 'text-align: center'>Short URL Doesn't Exist</h1> <br /><h3 style = 'text-align: center'> Try creating a <a href = '/urls/new'>new one</a></h3>");
   }
 
-=======
-  res.render("urls_show", templateVars);
->>>>>>> parent of a1136aa... Changed how permissions were handled. Added error catching for incorrect user logged in trying to edit specific URL and if the specific URL doesn't exist
 });
 
 // Redirect to long url version of the shortened one
@@ -257,7 +164,7 @@ app.get("/login", (req, res) => {
   res.render("login", templateVars);
 })
 
-// Logoutres.send("<h3 style = 'text-align: center;'>User name or password was left blank. Please <a href = '/register'>try again.</a>");
+// Logout
 app.post("/logout", (req, res) => {
   console.log("Logging out...");
   req.session = null;
@@ -277,13 +184,8 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   console.log("creating user");
   if (req.body.email === "" || req.body.password === "") {
-<<<<<<< HEAD
-    res.status(400);
-    res.redirect("/error");
-=======
     console.log("Empty field");
     res.sendStatus(400);
->>>>>>> parent of bae08dc... Added a new way to handle errors that gives relevant error messages based on the status code
   } else if (getUserByEmail(users, req.body.email)) {
     console.log("User exists");
     res.sendStatus(400);
@@ -300,4 +202,3 @@ app.post("/register", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server started listening on port ${PORT}`);
 });
-
