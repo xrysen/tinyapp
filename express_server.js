@@ -33,19 +33,51 @@ app.get("/", (req, res) => {
   }
 });
 
+app.get("/error", (req, res) => {
+  const templateVars = {
+    user: users,
+    user_id: req.session.user_id,
+    errorString: ""
+  };
+ 
+  switch(req.statusCde) {
+    case 401: // Not Authorized
+      templateVars.errorString = "You are not Authorized to View this Page. Please Login or Register for a new account";
+      break;
+    case 404: // Doesn't exist
+      templateVars.errorString = "Short URL doesn't exist. Please try making one!";
+      break;
+    case 403: // Forbidden
+      templateVars.errorString = "Action not allowed";
+      break;
+
+    default:
+      templateVars.errorString = "Short URL doesn't exist.";
+      break;
+  }
+
+  res.render("error", templateVars);
+});
+
 // POST method for submitting a new url
 app.post("/urls", (req, res) => {
-  const shortendString = generateRandomString();
-  const userID = req.session.user_id;
-  const date = new Date();
-  urlDatabase[shortendString] = {
-    longURL: req.body.longURL,
-    userID: userID,
-    dateCreated: date.toDateString(),
-    numVisits: 0
-  };
+  if (req.session.user_id) {
 
-  res.redirect("/urls");
+    const shortendString = generateRandomString();
+    const userID = req.session.user_id;
+    const date = new Date();
+    urlDatabase[shortendString] = {
+      longURL: req.body.longURL,
+      userID: userID,
+      dateCreated: date.toDateString(),
+      numVisits: 0
+    };
+    
+    res.redirect(`/urls/${shortendString}`);
+  } else {
+    res.status(401);
+    res.redirect("/error");
+  }
 });
 
 // Create new url
@@ -58,8 +90,8 @@ app.get("/urls/new", (req, res) => {
   if (req.session.user_id) {
     res.render("urls_new", templateVars);
   } else {
-    res.status(401);
-    res.redirect("/login");
+    res.statusCode = 401;
+    res.redirect("/error");
   }
 
 });
@@ -77,7 +109,7 @@ app.get("/urls", (req, res) => {
     res.render("urls_index", templateVars);
   } else {
     res.status(401);
-    res.send("<h1 style = 'text-align: center'>You are not Authorized to View this Page</h1><br /><h3 style = 'text-align: center'> Please <a href = '/login'>Login</a> or <a href = '/register'>Register</a> for a new account");
+    res.redirect("/error");
   }
 
 });
@@ -99,21 +131,27 @@ app.get("/urls/:shortURL", (req, res) => {
       res.render("urls_show", templateVars);
     } else {
       res.status(401);
-      res.send("<h1 style = 'text-align: center'>You are not Authorized to View this Page</h1><br /><h3 style = 'text-align: center'> Please <a href = '/login'>Login</a> to your account to view.");
+      res.redirect("/error");
     }
   } else {
     res.status(404);
-    res.send("<h1 style = 'text-align: center'>Short URL Doesn't Exist</h1> <br /><h3 style = 'text-align: center'> Try creating a <a href = '/urls/new'>new one</a></h3>");
+    res.redirect("/error");
   }
 
 });
 
 // Redirect to long url version of the shortened one
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  urlDatabase[req.params.shortURL].numVisits++;
-  res.redirect(longURL);
+  if (urlDatabase[req.params.shortURL]) {
+    const longURL = urlDatabase[req.params.shortURL].longURL;
+    urlDatabase[req.params.shortURL].numVisits++;
+    res.redirect(longURL);
+  } else {
+    res.status(404);
+    res.redirect("/error");
+  }
 });
+
 
 // Delete URL from database
 app.post("/urls/:shortURL/delete", (req, res) => {
@@ -124,6 +162,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     res.redirect("/urls");
   } else {
     res.sendStatus(403);
+    res.redirect("/error");
   }
 });
 
@@ -136,6 +175,7 @@ app.post("/urls/:shortURL/update", (req, res) => {
     res.redirect("/urls");
   } else {
     res.sendStatus(403);
+    res.redirect("/error");
   }
 });
 
@@ -145,8 +185,6 @@ app.post("/login", (req, res) => {
   const userLookup = getUserByEmail(users, req.body.email);
   console.log("Logging in...");
   if (!userLookup || !bcrypt.compareSync(req.body.password, users[userLookup].password)) {
-    console.log("User doesn't exist");
-    console.log("Or incorrect password");
     res.sendStatus(403);
   } else if (userLookup && bcrypt.compareSync(req.body.password, users[userLookup].password)) {
     req.session.user_id = userLookup;
@@ -184,11 +222,11 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   console.log("creating user");
   if (req.body.email === "" || req.body.password === "") {
-    console.log("Empty field");
-    res.sendStatus(400);
+    res.status(403);
+    res.send("<h3 style = 'text-align: center;'>User name or password was left blank. Please <a href = '/register'>try again.</a>");
   } else if (getUserByEmail(users, req.body.email)) {
-    console.log("User exists");
-    res.sendStatus(400);
+    res.status(400);
+    res.send("<h3 style = 'text-align: center;'>An account with that e-mail already exists. Please <a href = '/login'>Login</a></h3>");
   } else {
     const randomId = generateRandomString();
     users[randomId] = {};
