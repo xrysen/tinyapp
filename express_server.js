@@ -27,14 +27,14 @@ app.use(cookieSession({
 app.set('view engine', 'ejs');
 
 app.get("/", (req, res) => {
-  if (req.session.user_id) {
+  if(req.session.user_id) {
     res.redirect("/urls");
   } else {
-    res.status(401);
     res.redirect("/login");
   }
 });
 
+<<<<<<< HEAD
 app.get("/error", (req, res) => {
   const templateVars = {
     user: users,
@@ -66,6 +66,18 @@ app.get("/error", (req, res) => {
   res.render("error", templateVars);
 });
 
+=======
+
+app.get("/forbidden", (req, res) => {
+  const templateVars = {
+    user: users,
+    user_id: req.session.user_id
+  };
+  res.render("not_loggedin", templateVars);
+});
+
+
+>>>>>>> parent of a1136aa... Changed how permissions were handled. Added error catching for incorrect user logged in trying to edit specific URL and if the specific URL doesn't exist
 // POST method for submitting a new url
 app.post("/urls", (req, res) => {
   if (req.session.user_id) {
@@ -97,8 +109,12 @@ app.get("/urls/new", (req, res) => {
   if (req.session.user_id) {
     res.render("urls_new", templateVars);
   } else {
+<<<<<<< HEAD
     res.statusCode = 401;
     res.redirect("/error");
+=======
+    res.redirect("/login");
+>>>>>>> parent of a1136aa... Changed how permissions were handled. Added error catching for incorrect user logged in trying to edit specific URL and if the specific URL doesn't exist
   }
 
 });
@@ -115,14 +131,25 @@ app.get("/urls", (req, res) => {
   if (req.session.user_id) {
     res.render("urls_index", templateVars);
   } else {
+<<<<<<< HEAD
     res.status(401);
     res.redirect("/error");
+=======
+    res.redirect("/forbidden");
+>>>>>>> parent of a1136aa... Changed how permissions were handled. Added error catching for incorrect user logged in trying to edit specific URL and if the specific URL doesn't exist
   }
 
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+  const templateVars = {
+    shortURL: req.params.shortURL,
+    user_id: req.session.user_id,
+    longURL: urlDatabase[req.params.shortURL].longURL,
+    user: users
+  };
 
+<<<<<<< HEAD
   if (urlDatabase[req.params.shortURL]) {
 
     const templateVars = {
@@ -145,6 +172,9 @@ app.get("/urls/:shortURL", (req, res) => {
     res.redirect("/error");
   }
 
+=======
+  res.render("urls_show", templateVars);
+>>>>>>> parent of a1136aa... Changed how permissions were handled. Added error catching for incorrect user logged in trying to edit specific URL and if the specific URL doesn't exist
 });
 
 // Redirect to long url version of the shortened one
