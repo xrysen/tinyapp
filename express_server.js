@@ -11,10 +11,12 @@ const urlDatabase = {
   "9sm5xK": { longURL: "http://www.google.com", userID: "aj48lW", dateCreated: "Mon Nov 02 2020", numVisits: 0 }
 };
 
+// Set up an Object database to store users
 const users = {
 
 };
 
+// Keeps track of error codes and is used by the error page to determine what is output
 let errorCode = 0;
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -40,26 +42,27 @@ app.get("/error", (req, res) => {
     user_id: req.session.user_id,
     errorString: ""
   };
+
   res.status(errorCode);
-  switch(errorCode) {
-    case 401:
-      templateVars.errorString = "You are not Authorized to View this Page";
-      break;
-    case 404:
-      templateVars.errorString = "The Page you are Looking for Doesn't Exist";
-      break;
-    case 403:
-      templateVars.errorString = "You are not authorized to make this change";
-      break;
-    case 400:
-      templateVars.errorString = "Either the username or password provided are incorrect.";
-      break;
-    case 406:
-      templateVars.errorString = "Either the username or password field was left blank. Please fill in both forms.";
-      break;
-    case 409:
-      templateVars.errorString = "A user with that e-mail already exists.";
-      break;
+  switch (errorCode) {
+  case 401:
+    templateVars.errorString = "You are not Authorized to View this Page";
+    break;
+  case 404:
+    templateVars.errorString = "The Page you are Looking for Doesn't Exist";
+    break;
+  case 403:
+    templateVars.errorString = "You are not authorized to make this change";
+    break;
+  case 400:
+    templateVars.errorString = "Either the username or password provided are incorrect.";
+    break;
+  case 406:
+    templateVars.errorString = "Either the username or password field was left blank. Please fill in both forms.";
+    break;
+  case 409:
+    templateVars.errorString = "A user with that e-mail already exists.";
+    break;
   }
   res.render("error", templateVars);
 });
@@ -81,10 +84,10 @@ app.post("/urls", (req, res) => {
     errorCode = 401;
     res.redirect("/error");
   }
-
 });
 
-// Create new url
+
+// Creates a new tinyurl for the address provided
 app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: users,
@@ -97,8 +100,8 @@ app.get("/urls/new", (req, res) => {
     res.status(401);
     res.redirect("/login");
   }
-
 });
+
 
 // Show created Tiny URLS
 app.get("/urls", (req, res) => {
@@ -115,13 +118,11 @@ app.get("/urls", (req, res) => {
     errorCode = 401;
     res.redirect("/error");
   }
-
 });
 
+// Shows status for the tinyurl provided and also allows the user to update the address the tinyurl redirects to
 app.get("/urls/:shortURL", (req, res) => {
-
   if (urlDatabase[req.params.shortURL]) {
-
     const templateVars = {
       shortURL: req.params.shortURL,
       user_id: req.session.user_id,
@@ -141,7 +142,6 @@ app.get("/urls/:shortURL", (req, res) => {
     errorCode = 404;
     res.redirect("/error");
   }
-
 });
 
 // Redirect to long url version of the shortened one
@@ -155,7 +155,6 @@ app.get("/u/:shortURL", (req, res) => {
     res.redirect("/error");
   }
 });
-
 
 // Delete URL from database
 app.post("/urls/:shortURL/delete", (req, res) => {
@@ -172,8 +171,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   }
 });
 
-
-// Update function
+// Updates existing tinyurl to the new address provided
 app.post("/urls/:shortURL/update", (req, res) => {
   const shortURL = req.params.shortURL;
   if (!urlDatabase[shortURL]) {
@@ -190,8 +188,7 @@ app.post("/urls/:shortURL/update", (req, res) => {
   }
 });
 
-
-// Login
+// Looks for user in database and if they exist logs them in
 app.post("/login", (req, res) => {
   const userLookup = getUserByEmail(users, req.body.email);
   if (!userLookup || !bcrypt.compareSync(req.body.password, users[userLookup].password)) {
@@ -215,9 +212,9 @@ app.get("/login", (req, res) => {
   } else {
     res.render("login", templateVars);
   }
-}); 
+});
 
-// Logout
+// Logout and delete cookie session
 app.post("/logout", (req, res) => {
   console.log("Logging out...");
   req.session = null;
@@ -236,8 +233,6 @@ app.get("/register", (req, res) => {
     res.render("register", templateVars);
   }
 });
-
-
 
 // Handle Registration
 app.post("/register", (req, res) => {
@@ -261,3 +256,10 @@ app.post("/register", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server started listening on port ${PORT}`);
 });
+
+
+
+
+
+
+
