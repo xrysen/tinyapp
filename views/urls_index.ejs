@@ -16,6 +16,8 @@
         <tr>
           <th scope = "col">Short URL</th>
           <th scope = "col">Long URL</th>
+          <th scope = "col">Date Created</th>
+          <th scope = "col">Times Used</th>
           <th scope = "col">Edit</th>
           <th scope = "col">Delete</th>
         </tr>
@@ -25,6 +27,8 @@
           <tr>
             <td><%= item %></td>
             <td><%= urlDB[item].longURL %></td>
+            <td><%= urlDB[item].dateCreated %> </td>
+            <td><%= urlDB[item].numVisits %></td>
             <td scope = "col"><form method = "GET" action = "/urls/<%= item %>"><button type = "submit" class = "btn btn-outline-primary">Edit</button></form></td>
             <td scope = "col"><form method = "POST" action = "/urls/<%= item %>/delete"><button type = "submit" class = "btn btn-outline-danger">Delete</button></form></td>
           </tr>

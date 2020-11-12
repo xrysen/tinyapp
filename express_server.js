@@ -5,18 +5,16 @@ const PORT = 8080;
 const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
-const { generateRandomString, findEmail, urlsForUser } = require("./helpers");
+const { generateRandomString, urlsForUser, getUserByEmail } = require("./helpers");
 
 const urlDatabase = {
-  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "aj48lW" },
-  "9sm5xK": { longURL: "http://www.google.com", userID: "aj48lW" }
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "aj48lW", dateCreated: "Fri Oct 30 2020", numVisits: 0 },
+  "9sm5xK": { longURL: "http://www.google.com", userID: "aj48lW", dateCreated: "Mon Nov 02 2020", numVisits: 0 }
 };
 
 const users = {
 
 };
-
-
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
@@ -27,16 +25,24 @@ app.use(cookieSession({
 app.set('view engine', 'ejs');
 
 app.get("/", (req, res) => {
-  res.redirect("/login");
+  if(req.session.user_id) {
+    res.redirect("/urls");
+  } else {
+    res.redirect("/login");
+  }
 });
+
 
 // POST method for submitting a new url
 app.post("/urls", (req, res) => {
   const shortendString = generateRandomString();
-  const userID = req.cookies['user_id'];
+  const userID = req.session.user_id;
+  const date = new Date();
   urlDatabase[shortendString] = {
     longURL: req.body.longURL,
-    userID: userID
+    userID: userID,
+    dateCreated: date.toDateString(),
+    numVisits: 0
   };
 
   console.log(urlDatabase[shortendString]);
@@ -47,7 +53,7 @@ app.post("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: users,
-    user_id: req.session.user_id
+    user_id: req.session.user_id,
   };
 
   if(req.session.user_id) {
@@ -89,6 +95,7 @@ app.get("/urls/:shortURL", (req, res) => {
 // Redirect to long url version of the shortened one
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL].longURL;
+  urlDatabase[req.params.shortURL].numVisits++;
   res.redirect(longURL);
 });
 
@@ -119,7 +126,7 @@ app.post("/urls/:shortURL/update", (req, res) => {
 
 // Login 
 app.post("/login", (req, res) => {
-  const userLookup = findEmail(users, req.body.email);
+  const userLookup = getUserByEmail(users, req.body.email);
   console.log("Logging in...");
   if (!userLookup || !bcrypt.compareSync(req.body.password, users[userLookup].password)) {
     console.log("User doesn't exist");
@@ -163,7 +170,7 @@ app.post("/register", (req, res) => {
   if (req.body.email === "" || req.body.password === "") {
     console.log("Empty field");
     res.sendStatus(400);
-  } else if (findEmail(users, req.body.email)) {
+  } else if (getUserByEmail(users, req.body.email)) {
     console.log("User exists");
     res.sendStatus(400);
   } else {

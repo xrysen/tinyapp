@@ -22,14 +22,14 @@ const generateRandomString = () => {
   *   - Return false if no match is found 
   */
 
-const findEmail = (obj, email) => {
+const getUserByEmail = (obj, email) => {
   const keys = Object.keys(obj);
   for (let items of keys) {
     if (obj[items].email === email) {
       return items;
     }
   }
-  return false;
+  return undefined;
 };
 
 const urlsForUser = (obj, id) => {
@@ -45,6 +45,6 @@ const urlsForUser = (obj, id) => {
 
 module.exports = {
   generateRandomString,
-  findEmail,
+  getUserByEmail,
   urlsForUser
 };
