@@ -35,6 +35,7 @@ app.get("/", (req, res) => {
 });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 app.get("/error", (req, res) => {
   const templateVars = {
     user: users,
@@ -78,10 +79,21 @@ app.get("/forbidden", (req, res) => {
 
 
 >>>>>>> parent of a1136aa... Changed how permissions were handled. Added error catching for incorrect user logged in trying to edit specific URL and if the specific URL doesn't exist
+=======
+>>>>>>> parent of bae08dc... Added a new way to handle errors that gives relevant error messages based on the status code
 // POST method for submitting a new url
 app.post("/urls", (req, res) => {
-  if (req.session.user_id) {
+  const shortendString = generateRandomString();
+  const userID = req.session.user_id;
+  const date = new Date();
+  urlDatabase[shortendString] = {
+    longURL: req.body.longURL,
+    userID: userID,
+    dateCreated: date.toDateString(),
+    numVisits: 0
+  };
 
+<<<<<<< HEAD
     const shortendString = generateRandomString();
     const userID = req.session.user_id;
     const date = new Date();
@@ -97,6 +109,9 @@ app.post("/urls", (req, res) => {
     res.status(401).sendFile("/error");
     
   }
+=======
+  res.redirect("/urls");
+>>>>>>> parent of bae08dc... Added a new way to handle errors that gives relevant error messages based on the status code
 });
 
 // Create new url
@@ -110,11 +125,16 @@ app.get("/urls/new", (req, res) => {
     res.render("urls_new", templateVars);
   } else {
 <<<<<<< HEAD
+<<<<<<< HEAD
     res.statusCode = 401;
     res.redirect("/error");
 =======
     res.redirect("/login");
 >>>>>>> parent of a1136aa... Changed how permissions were handled. Added error catching for incorrect user logged in trying to edit specific URL and if the specific URL doesn't exist
+=======
+    res.status(401);
+    res.redirect("/login");
+>>>>>>> parent of bae08dc... Added a new way to handle errors that gives relevant error messages based on the status code
   }
 
 });
@@ -133,10 +153,14 @@ app.get("/urls", (req, res) => {
   } else {
 <<<<<<< HEAD
     res.status(401);
+<<<<<<< HEAD
     res.redirect("/error");
 =======
     res.redirect("/forbidden");
 >>>>>>> parent of a1136aa... Changed how permissions were handled. Added error catching for incorrect user logged in trying to edit specific URL and if the specific URL doesn't exist
+=======
+    res.send("<h1 style = 'text-align: center'>You are not Authorized to View this Page</h1><br /><h3 style = 'text-align: center'> Please <a href = '/login'>Login</a> or <a href = '/register'>Register</a> for a new account");
+>>>>>>> parent of bae08dc... Added a new way to handle errors that gives relevant error messages based on the status code
   }
 
 });
@@ -165,11 +189,11 @@ app.get("/urls/:shortURL", (req, res) => {
       res.render("urls_show", templateVars);
     } else {
       res.status(401);
-      res.redirect("/error");
+      res.send("<h1 style = 'text-align: center'>You are not Authorized to View this Page</h1><br /><h3 style = 'text-align: center'> Please <a href = '/login'>Login</a> to your account to view.");
     }
   } else {
     res.status(404);
-    res.redirect("/error");
+    res.send("<h1 style = 'text-align: center'>Short URL Doesn't Exist</h1> <br /><h3 style = 'text-align: center'> Try creating a <a href = '/urls/new'>new one</a></h3>");
   }
 
 =======
@@ -179,16 +203,10 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // Redirect to long url version of the shortened one
 app.get("/u/:shortURL", (req, res) => {
-  if (urlDatabase[req.params.shortURL]) {
-    const longURL = urlDatabase[req.params.shortURL].longURL;
-    urlDatabase[req.params.shortURL].numVisits++;
-    res.redirect(longURL);
-  } else {
-    res.status(404);
-    res.redirect("/error");
-  }
+  const longURL = urlDatabase[req.params.shortURL].longURL;
+  urlDatabase[req.params.shortURL].numVisits++;
+  res.redirect(longURL);
 });
-
 
 // Delete URL from database
 app.post("/urls/:shortURL/delete", (req, res) => {
@@ -199,7 +217,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     res.redirect("/urls");
   } else {
     res.sendStatus(403);
-    res.redirect("/error");
   }
 });
 
@@ -212,7 +229,6 @@ app.post("/urls/:shortURL/update", (req, res) => {
     res.redirect("/urls");
   } else {
     res.sendStatus(403);
-    res.redirect("/error");
   }
 });
 
@@ -222,6 +238,8 @@ app.post("/login", (req, res) => {
   const userLookup = getUserByEmail(users, req.body.email);
   console.log("Logging in...");
   if (!userLookup || !bcrypt.compareSync(req.body.password, users[userLookup].password)) {
+    console.log("User doesn't exist");
+    console.log("Or incorrect password");
     res.sendStatus(403);
   } else if (userLookup && bcrypt.compareSync(req.body.password, users[userLookup].password)) {
     req.session.user_id = userLookup;
@@ -259,11 +277,16 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   console.log("creating user");
   if (req.body.email === "" || req.body.password === "") {
+<<<<<<< HEAD
     res.status(400);
     res.redirect("/error");
+=======
+    console.log("Empty field");
+    res.sendStatus(400);
+>>>>>>> parent of bae08dc... Added a new way to handle errors that gives relevant error messages based on the status code
   } else if (getUserByEmail(users, req.body.email)) {
-    res.status(400);
-    res.send("<h3 style = 'text-align: center;'>An account with that e-mail already exists. Please <a href = '/login'>Login</a></h3>");
+    console.log("User exists");
+    res.sendStatus(400);
   } else {
     const randomId = generateRandomString();
     users[randomId] = {};
