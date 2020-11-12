@@ -16,6 +16,8 @@ const users = {
 
 };
 
+let errorCode = 0;
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
   name: 'session',
@@ -39,8 +41,9 @@ app.get("/error", (req, res) => {
     user_id: req.session.user_id,
     errorString: ""
   };
+  console.log(res.statusCode);
  
-  switch(req.statusCde) {
+  switch(req.statusCode) {
     case 401: // Not Authorized
       templateVars.errorString = "You are not Authorized to View this Page. Please Login or Register for a new account";
       break;
@@ -49,6 +52,10 @@ app.get("/error", (req, res) => {
       break;
     case 403: // Forbidden
       templateVars.errorString = "Action not allowed";
+      break;
+
+    case 400: // Bad Request
+      templateVars.errorString = "User name or password was left blank. Please try again";
       break;
 
     default:
@@ -75,8 +82,8 @@ app.post("/urls", (req, res) => {
     
     res.redirect(`/urls/${shortendString}`);
   } else {
-    res.status(401);
-    res.redirect("/error");
+    res.status(401).sendFile("/error");
+    
   }
 });
 
@@ -202,7 +209,7 @@ app.get("/login", (req, res) => {
   res.render("login", templateVars);
 })
 
-// Logout
+// Logoutres.send("<h3 style = 'text-align: center;'>User name or password was left blank. Please <a href = '/register'>try again.</a>");
 app.post("/logout", (req, res) => {
   console.log("Logging out...");
   req.session = null;
@@ -222,8 +229,8 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   console.log("creating user");
   if (req.body.email === "" || req.body.password === "") {
-    res.status(403);
-    res.send("<h3 style = 'text-align: center;'>User name or password was left blank. Please <a href = '/register'>try again.</a>");
+    res.status(400);
+    res.redirect("/error");
   } else if (getUserByEmail(users, req.body.email)) {
     res.status(400);
     res.send("<h3 style = 'text-align: center;'>An account with that e-mail already exists. Please <a href = '/login'>Login</a></h3>");
