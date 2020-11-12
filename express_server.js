@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+const methodOverride = require('method-override');
 const PORT = 8080;
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
@@ -19,6 +20,7 @@ const users = {
 // Keeps track of error codes and is used by the error page to determine what is output
 let errorCode = 0;
 
+app.use(methodOverride('_method'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
   name: 'session',
@@ -157,7 +159,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 // Delete URL from database
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   if (!urlDatabase[shortURL]) {
     errorCode = 404;
@@ -172,7 +174,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 // Updates existing tinyurl to the new address provided
-app.post("/urls/:shortURL/update", (req, res) => {
+app.put("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   if (!urlDatabase[shortURL]) {
     errorCode = 404;

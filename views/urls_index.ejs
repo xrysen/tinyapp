@@ -30,7 +30,7 @@
             <td><%= urlDB[item].dateCreated %> </td>
             <td><%= urlDB[item].numVisits %></td>
             <td scope = "col"><form method = "GET" action = "/urls/<%= item %>"><button type = "submit" class = "btn btn-outline-primary">Edit</button></form></td>
-            <td scope = "col"><form method = "POST" action = "/urls/<%= item %>/delete"><button type = "submit" class = "btn btn-outline-danger">Delete</button></form></td>
+            <td scope = "col"><form method = "POST" action = "/urls/<%= item %>?_method=DELETE" ><button type = "submit" class = "btn btn-outline-danger">Delete</button></form></td>
           </tr>
           <% } %>
       </tbody>
