@@ -2,7 +2,6 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const PORT = 8080;
-const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const { generateRandomString, urlsForUser, getUserByEmail } = require("./helpers");
@@ -155,7 +154,7 @@ app.post("/urls/:shortURL/update", (req, res) => {
 });
 
 
-// Login 
+// Login
 app.post("/login", (req, res) => {
   const userLookup = getUserByEmail(users, req.body.email);
   if (!userLookup || !bcrypt.compareSync(req.body.password, users[userLookup].password)) {
@@ -195,7 +194,7 @@ app.get("/register", (req, res) => {
   const templateVars = {
     user_id: req.session.user_id,
     user: users
-  }
+  };
   if (req.session.user_id) {
     res.redirect("/urls");
   } else {
