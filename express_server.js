@@ -25,22 +25,13 @@ app.use(cookieSession({
 app.set('view engine', 'ejs');
 
 app.get("/", (req, res) => {
-  if(req.session.user_id) {
+  if (req.session.user_id) {
     res.redirect("/urls");
   } else {
+    res.status(401);
     res.redirect("/login");
   }
 });
-
-
-app.get("/forbidden", (req, res) => {
-  const templateVars = {
-    user: users,
-    user_id: req.session.user_id
-  };
-  res.render("not_loggedin", templateVars);
-});
-
 
 // POST method for submitting a new url
 app.post("/urls", (req, res) => {
@@ -67,6 +58,7 @@ app.get("/urls/new", (req, res) => {
   if (req.session.user_id) {
     res.render("urls_new", templateVars);
   } else {
+    res.status(401);
     res.redirect("/login");
   }
 
@@ -84,20 +76,36 @@ app.get("/urls", (req, res) => {
   if (req.session.user_id) {
     res.render("urls_index", templateVars);
   } else {
-    res.redirect("/forbidden");
+    res.status(401);
+    res.send("<h1 style = 'text-align: center'>You are not Authorized to View this Page</h1><br /><h3 style = 'text-align: center'> Please <a href = '/login'>Login</a> or <a href = '/register'>Register</a> for a new account");
   }
 
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = {
-    shortURL: req.params.shortURL,
-    user_id: req.session.user_id,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    user: users
-  };
 
-  res.render("urls_show", templateVars);
+  if (urlDatabase[req.params.shortURL]) {
+
+    const templateVars = {
+      shortURL: req.params.shortURL,
+      user_id: req.session.user_id,
+      longURL: urlDatabase[req.params.shortURL].longURL,
+      dateCreated: urlDatabase[req.params.shortURL].dateCreated,
+      numVisits: urlDatabase[req.params.shortURL].numVisits,
+      user: users
+    };
+
+    if (urlDatabase[req.params.shortURL].userID === req.session.user_id) {
+      res.render("urls_show", templateVars);
+    } else {
+      res.status(401);
+      res.send("<h1 style = 'text-align: center'>You are not Authorized to View this Page</h1><br /><h3 style = 'text-align: center'> Please <a href = '/login'>Login</a> to your account to view.");
+    }
+  } else {
+    res.status(404);
+    res.send("<h1 style = 'text-align: center'>Short URL Doesn't Exist</h1> <br /><h3 style = 'text-align: center'> Try creating a <a href = '/urls/new'>new one</a></h3>");
+  }
+
 });
 
 // Redirect to long url version of the shortened one
