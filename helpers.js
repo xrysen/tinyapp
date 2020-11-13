@@ -12,15 +12,15 @@ const generateRandomString = () => {
   return output;
 };
 
- /**
-  * Searches an object for the corresponding email (passed in as a string)
-  * Input:
-  *   - An object
-  *   - A string 
-  * Output:
-  *   - Returns the key of the object whose email property matches the string if found
-  *   - Return false if no match is found 
-  */
+/**
+ * Searches an object for the corresponding email (passed in as a string)
+ * Input:
+ *   - An object
+ *   - A string
+ * Output:
+ *   - Returns the key of the object whose email property matches the string if found
+ *   - Return false if no match is found
+ */
 
 const getUserByEmail = (obj, email) => {
   const keys = Object.keys(obj);
@@ -41,7 +41,7 @@ const urlsForUser = (obj, id) => {
     }
   }
   return outputArray;
-}
+};
 
 module.exports = {
   generateRandomString,

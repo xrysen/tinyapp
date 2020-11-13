@@ -9,12 +9,12 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <% if (!user[user_id]) { %>
+        <% if (!user[userId]) { %>
         <a class = "nav-item nav-link" href = "/register" style = "position: absolute; right: 200px">Register</a>
         <a class = "nav-item nav-link" href = "/login" style = "position: absolute; right: 100px">Login</a>
         <% } else { %>
           <form class = "form-inline" method = "POST" action = "/logout" style = "position: absolute; right: 100px; top: 10px">
-            <p>Signed in as <%= user[user_id].email %> 
+            <p>Signed in as <%= user[userId].email %> 
           <button class = "btn btn-outline-dark">Logout</button></p>
           </form>
         <% } %>  
