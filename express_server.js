@@ -8,8 +8,7 @@ const bcrypt = require('bcrypt');
 const { generateRandomString, urlsForUser, getUserByEmail } = require("./helpers");
 
 const urlDatabase = {
-  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "aj48lW", dateCreated: "Fri Oct 30 2020", numVisits: 0 },
-  "9sm5xK": { longURL: "http://www.google.com", userID: "aj48lW", dateCreated: "Mon Nov 02 2020", numVisits: 0 }
+  
 };
 
 // Set up an Object database to store users
